@@ -1,5 +1,12 @@
-{ config, pkgs, lib, ... }: let
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+let
   sandbox = import ./sandbox.nix { inherit pkgs lib config; };
-in {
+in
+{
   inherit (sandbox) script;
-} 
+}

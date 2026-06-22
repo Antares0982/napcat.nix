@@ -1,10 +1,17 @@
-{ pkgs, lib, config, ... }: let
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
+let
   cfg = config;
-  napcat = pkgs.callPackage ./napcat.nix {};
+  napcat = pkgs.callPackage ./napcat.nix { inherit (cfg) sandbox_home; };
   fonts = pkgs.makeFontsConf {
     fontDirectories = with pkgs; [ source-han-sans ];
   };
-in {
+in
+{
   script = pkgs.writeScriptBin "NapCat" ''
     #!${pkgs.runtimeShell}
     mkdir -p ${cfg.qq_config_dir} ${cfg.nc_config_dir}
@@ -16,8 +23,8 @@ in {
       --clearenv \
       --ro-bind /nix/store /nix/store \
       --ro-bind ${pkgs.tzdata}/share/zoneinfo/Asia/Shanghai /etc/localtime \
-      --bind ${cfg.nc_config_dir} /root/napcat/config \
-      --bind ${cfg.qq_config_dir} /root/.config/QQ \
+      --bind ${cfg.nc_config_dir} ${cfg.sandbox_home}/napcat/config \
+      --bind ${cfg.qq_config_dir} ${cfg.sandbox_home}/.config/QQ \
       --proc /proc \
       --dev /dev \
       --tmpfs /tmp \
@@ -30,12 +37,18 @@ in {
           chmod +x /services/$1/run
         }
 
-        export PATH=${lib.makeBinPath (with pkgs;
-          [ busybox xorg.xorgserver ]
-        )}
-        export HOME=/root
-        export XDG_DATA_HOME=/root/.local/share
-        export XDG_CONFIG_HOME=/root/.config
+        export PATH=${
+          lib.makeBinPath (
+            with pkgs;
+            [
+              busybox
+              xorg.xorgserver
+            ]
+          )
+        }
+        export HOME=${cfg.sandbox_home}
+        export XDG_DATA_HOME=${cfg.sandbox_home}/.local/share
+        export XDG_CONFIG_HOME=${cfg.sandbox_home}/.config
         export TERM=xterm
         mkdir -p /usr/bin /bin
         ln -s $(which env) /usr/bin/env
@@ -43,7 +56,7 @@ in {
 
         export DISPLAY=':114'
         createService xvfb 'Xvfb :114 > /dev/null 2>&1'
-        cp -rf ${napcat.patched}/napcat/* /root/napcat/
+        cp -rf ${napcat.patched}/napcat/* ${cfg.sandbox_home}/napcat/
         createService program "${napcat.program} $@"
         runsvdir /services
       ''} "$@"

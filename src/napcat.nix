@@ -1,5 +1,11 @@
-{ pkgs, lib, ... }: let
-  sources = pkgs.callPackage ./sources.nix {};
+{
+  pkgs,
+  lib,
+  sandbox_home,
+  ...
+}:
+let
+  sources = pkgs.callPackage ./sources.nix { };
   napcat-shell-zip = pkgs.fetchurl {
     url = sources.napcat_url;
     hash = sources.napcat_hash;
@@ -18,21 +24,25 @@
 
   currentSystem = pkgs.stdenv.hostPlatform.system;
   src = srcs.${currentSystem} or (throw "Unsupported system: ${currentSystem}");
-in rec {
+in
+rec {
   patched = pkgs.qq.overrideAttrs (old: {
-    buildInputs = (old.buildInputs or []) ++ [ pkgs.unzip ];  # 添加 unzip 到依赖中
+    buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.unzip ]; # 添加 unzip 到依赖中
     version = "${sources.qq_version}-${sources.napcat_version}";
     inherit src;
     postFixup = ''
       mkdir -p $out/napcat
       unzip ${napcat-shell-zip} -d $out/napcat
-      echo "(async () => {await import('/root/napcat/napcat.mjs');})();" > $out/opt/QQ/resources/app/loadNapCat.js
+      echo "(async () => {await import('${sandbox_home}/napcat/napcat.mjs');})();" > $out/opt/QQ/resources/app/loadNapCat.js
       sed -i 's|"main": "[^"]*"|"main": "./loadNapCat.js"|' $out/opt/QQ/resources/app/package.json
     '';
     meta = {
       description = "Modern protocol-side framework based on NTQQ";
       homepage = "https://github.com/NapNeko/NapCatQQ";
-      platforms = [ "x86_64-linux" "aarch64-linux" ];
+      platforms = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
     };
   });
   program = "${patched}/bin/qq --no-sandbox";
