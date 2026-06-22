@@ -14,7 +14,13 @@ in
 {
   script = pkgs.writeScriptBin "NapCat" ''
     #!${pkgs.runtimeShell}
-    mkdir -p ${cfg.qq_config_dir} ${cfg.nc_config_dir}
+    # 第一个命令行参数指定宿主机 home 路径,缺省 fallback 到 /home/antares;
+    # 其余参数继续透传给 napcat。沙箱内部路径与宿主机隔离,保持 build-time 固定。
+    HOST_HOME="''${1:-/home/antares}"
+    [ $# -gt 0 ] && shift
+    QQ_CONFIG_DIR="$HOST_HOME/napcat/config"
+    NC_CONFIG_DIR="$HOST_HOME/.config/QQ"
+    mkdir -p "$QQ_CONFIG_DIR" "$NC_CONFIG_DIR"
     ${pkgs.bubblewrap}/bin/bwrap \
       --unshare-all \
       --share-net \
@@ -23,8 +29,8 @@ in
       --clearenv \
       --ro-bind /nix/store /nix/store \
       --ro-bind ${pkgs.tzdata}/share/zoneinfo/Asia/Shanghai /etc/localtime \
-      --bind ${cfg.nc_config_dir} ${cfg.sandbox_home}/napcat/config \
-      --bind ${cfg.qq_config_dir} ${cfg.sandbox_home}/.config/QQ \
+      --bind "$NC_CONFIG_DIR" ${cfg.sandbox_home}/napcat/config \
+      --bind "$QQ_CONFIG_DIR" ${cfg.sandbox_home}/.config/QQ \
       --proc /proc \
       --dev /dev \
       --tmpfs /tmp \
