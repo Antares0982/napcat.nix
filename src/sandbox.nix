@@ -64,7 +64,7 @@ in
         export DISPLAY=':114'
         createService xvfb 'Xvfb :114 > /dev/null 2>&1'
         cp -rf ${napcat.patched}/napcat/* ${cfg.sandbox_home}/napcat/
-        createService program "${napcat.program} $@"
+        createService program "${napcat.program} $*"
         runsvdir /services
       ''} "$@"
   '';
