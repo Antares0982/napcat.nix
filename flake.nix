@@ -9,10 +9,11 @@
       system:
       let
         pkgs = import nixpkgs { inherit system; };
-        # 默认配置。sandbox_home 仅用于 bwrap namespace 内部的固定路径,
-        # 与宿主机隔离;宿主机 home 由运行时命令行参数决定(见 src/sandbox.nix)。
+        # Default configuration. sandbox_home is only used as a fixed path inside the
+        # bwrap namespace, isolated from the host; the host home is determined by
+        # the runtime command line argument (see src/sandbox.nix).
         defaultConfig = {
-          sandbox_home = "/home/antares";
+          sandbox_home = "/home/napcat";
         };
       in
       rec {

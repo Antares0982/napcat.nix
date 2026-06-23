@@ -27,7 +27,7 @@ let
 in
 rec {
   patched = pkgs.qq.overrideAttrs (old: {
-    buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.unzip ]; # 添加 unzip 到依赖中
+    buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.unzip ]; # Add unzip to build dependencies
     version = "${sources.qq_version}-${sources.napcat_version}";
     inherit src;
     postFixup = ''

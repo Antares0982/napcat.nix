@@ -14,9 +14,10 @@ in
 {
   script = pkgs.writeScriptBin "NapCat" ''
     #!${pkgs.runtimeShell}
-    # 第一个命令行参数指定宿主机 home 路径,缺省 fallback 到 /home/antares;
-    # 其余参数继续透传给 napcat。沙箱内部路径与宿主机隔离,保持 build-time 固定。
-    HOST_HOME="''${1:-/home/antares}"
+    # The first CLI argument specifies the host home path, defaulting to /home/napcat;
+    # remaining arguments are forwarded to napcat. Sandbox internal paths are
+    # isolated from the host and kept fixed at build time.
+    HOST_HOME="''${1:-/home/napcat}"
     [ $# -gt 0 ] && shift
     QQ_CONFIG_DIR="$HOST_HOME/napcat/config"
     NC_CONFIG_DIR="$HOST_HOME/.config/QQ"

@@ -2,11 +2,11 @@
 
 Fork from [chronocat.nix](https://github.com/Anillc/chronocat.nix)
 
-配置文件目录 ./data/napcat/config
+Config directory: ./data/napcat/config
 
-# 使用方法
+# Usage
 
-## 快速体验
+## Quick start
 
 ```shell
 nix run github:initialencounter/napcat.nix
@@ -23,7 +23,7 @@ sh <(curl -L https://nixos.org/nix/install) --daemon
 ```shell
 mkdir -p ~/.config/nix && touch ~/.config/nix/nix.conf
 vi ~/.config/nix/nix.conf
-# 写入
+# Write the following:
 experimental-features = nix-command
 ```
 
