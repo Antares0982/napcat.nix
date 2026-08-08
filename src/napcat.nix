@@ -10,26 +10,14 @@ let
     url = sources.napcat_url;
     hash = sources.napcat_hash;
   };
-
-  srcs = {
-    x86_64-linux = pkgs.fetchurl {
-      url = sources.qq_amd64_url;
-      hash = sources.qq_amd64_hash;
-    };
-    aarch64-linux = pkgs.fetchurl {
-      url = sources.qq_arm64_url;
-      hash = sources.qq_arm64_hash;
-    };
-  };
-
-  currentSystem = pkgs.stdenv.hostPlatform.system;
-  src = srcs.${currentSystem} or (throw "Unsupported system: ${currentSystem}");
 in
 rec {
+  # QQ itself comes straight from nixpkgs: Tencent deletes old builds from its
+  # CDN within weeks, so any URL we pin here 404s on the next flake update.
   patched = pkgs.qq.overrideAttrs (old: {
     buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.unzip ]; # Add unzip to build dependencies
-    version = "${sources.qq_version}-${sources.napcat_version}";
-    inherit src;
+    version = "${old.version}-${sources.napcat_version}";
+    __intentionallyOverridingVersion = true; # version tag only, src stays nixpkgs'
     postFixup = ''
       mkdir -p $out/napcat
       unzip ${napcat-shell-zip} -d $out/napcat
