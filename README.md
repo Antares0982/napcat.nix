@@ -4,12 +4,24 @@ Fork from [chronocat.nix](https://github.com/Anillc/chronocat.nix)
 
 Config directory: ./data/napcat/config
 
+QQ is frozen at `3.2.34-2026-09-24` and NapCat at `v4.18.42`.
+Both architectures use archived release files and fixed SHA-256 hashes in
+`src/sources.nix`. Flake updates can update nixpkgs and runtime libraries,
+but cannot update these QQ/NapCat binaries. QQ auto-updates are disabled.
+GitHub workflows and the source updater have been removed.
+
+Check the pins against a nixpkgs checkout:
+
+```shell
+nix eval --impure --expr 'import ./tests/pins.nix { nixpkgs = /path/to/nixpkgs; }'
+```
+
 # Usage
 
 ## Quick start
 
 ```shell
-nix run github:initialencounter/napcat.nix
+nix run github:Antares0982/napcat.nix
 ```
 
 ## setup nix

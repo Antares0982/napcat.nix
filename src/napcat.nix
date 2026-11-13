@@ -12,12 +12,11 @@ let
   };
 in
 rec {
-  # QQ itself comes straight from nixpkgs: Tencent deletes old builds from its
-  # CDN within weeks, so any URL we pin here 404s on the next flake update.
-  patched = pkgs.qq.overrideAttrs (old: {
+  patched = (pkgs.qq.override { disableAutoUpdate = true; }).overrideAttrs (old: {
     buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.unzip ]; # Add unzip to build dependencies
-    version = "${old.version}-${sources.napcat_version}";
-    __intentionallyOverridingVersion = true; # version tag only, src stays nixpkgs'
+    version = "${sources.qq_version}-${sources.napcat_version}";
+    src = pkgs.fetchurl sources.qq_sources.${pkgs.stdenv.hostPlatform.system};
+    __intentionallyOverridingVersion = true;
     postFixup = ''
       mkdir -p $out/napcat
       unzip ${napcat-shell-zip} -d $out/napcat
